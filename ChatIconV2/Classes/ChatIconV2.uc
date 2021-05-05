@@ -21,6 +21,7 @@ const T_COUNT = 10;
 struct TextureNames
 {
   var config string Name; // Name of the texture e.g. PackageName.Group.TexName
+  var config int iMaxFPS;
   var config string Description; // Only for reference, not used in anything
 };
 var config TextureNames aIcon[T_COUNT]; // Config List to hold all textures you have in your package
@@ -54,21 +55,24 @@ simulated function Tick(float DeltaTime)
 {
   local ChatIconInteraction CII;
   local PlayerController PC;
-  local int Count;
+  local int Count, RandInt;
 
   PC=Level.GetLocalPlayerController();
 
   // Get Count + Vars to Client
   Count = GetServerVars();
+  // Generate a random number based on count
+  RandInt = Rand(Count);
+
   if(PC!=None)
   {
     CII=ChatIconInteraction(PC.Player.InteractionMaster.AddInteraction("ChatIconV2.ChatIconInteraction", PC.Player));
     if(CII!=None)
     {
       if(!bRandomIcon)
-        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[iSelectTexture].Name, bDisplayFrom3rdP);
+        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[iSelectTexture].Name, bDisplayFrom3rdP, Icon[iSelectTexture].iMaxFPS);
       else
-        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[Rand(Count)].Name, bDisplayFrom3rdP);
+        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[RandInt].Name, bDisplayFrom3rdP, Icon[RandInt].iMaxFPS);
     }
     Disable('Tick');
   }
@@ -98,6 +102,7 @@ defaultproperties
   GroupName="KF-ChatIconV2"
   FriendlyName="Chat Icon - v2.0"
   Description="Shows an icon on top of a player when he is using chat"
+
   bAlwaysRelevant=True
   RemoteRole=ROLE_SimulatedProxy
   bNetNotify=True
