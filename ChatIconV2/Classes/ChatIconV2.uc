@@ -14,8 +14,8 @@
 class ChatIconV2 extends Mutator
   Config(ChatIconV2_Config);
 
-// Weapons Count | Default 200, but can be changed if Server Owners need more :)
-const T_COUNT = 30;
+// Textures Count | Default 10, can be increased if needed
+const T_COUNT = 10;
 
 // Config Variables
 struct TextureNames
@@ -31,7 +31,6 @@ var config int iSelectTexture;
 var config bool bRandomIcon, bDisplayFrom3rdP;
 var config float fScaleX, fScaleY;
 var config float fScaleW, fScaleH;
-
 
 // Player Var Replication
 replication
@@ -55,7 +54,12 @@ simulated function Tick(float DeltaTime)
 {
   local ChatIconInteraction CII;
   local PlayerController PC;
+  local int Count;
+
   PC=Level.GetLocalPlayerController();
+
+  // Get Count + Vars to Client
+  Count = GetServerVars();
   if(PC!=None)
   {
     CII=ChatIconInteraction(PC.Player.InteractionMaster.AddInteraction("ChatIconV2.ChatIconInteraction", PC.Player));
@@ -64,7 +68,7 @@ simulated function Tick(float DeltaTime)
       if(!bRandomIcon)
         CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[iSelectTexture].Name, bDisplayFrom3rdP);
       else
-        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[Rand(Icon.length)].Name, bDisplayFrom3rdP);
+        CII.SetSettings(fScaleX, fScaleY, fScaleW, fScaleH, Icon[Rand(Count)].Name, bDisplayFrom3rdP);
     }
     Disable('Tick');
   }
@@ -79,10 +83,9 @@ simulated function int GetServerVars()
   count = 0;
   for(i=0; i<T_COUNT; i++)
   {
-    if (aWeapon[i].sWeaponClassName != "")
+    if (aIcon[i].Name != "")
     {
-      Weapon[i] = aWeapon[i];
-      MutLog("-----|| Received Config for [" $Weapon[i].sWeaponClassName$ "] ||-----");
+      Icon[i] = aIcon[i];
       count++;
     }
   }
